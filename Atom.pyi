@@ -1,6 +1,27 @@
+"""
+Chem-Atom 0.0.5
+
+Author: GodForever
+Project: https://pypi.org/project/chem-atom/
+
+Chem-Atom is a library used for storing and editing chemical structural formulas. It provides an easy-to-use class Atom,
+which primarily stores atoms to achieve functions such as structure registration, modification, and conversion.
+
+All:
+    Atom (class)
+    bond (method)
+    delete_atom (method)
+    from_smiles (method)
+    get_all_atoms (method)
+    get_atom (method)
+    get_atom_id (method)
+    get_formula (method)
+    get_smiles (method)
+    reset_tags (method)
+"""
 from typing import *
 
-__all__ = ['Atom', 'bond', 'delete_atom', 'get_all_atoms', 'get_atom', 'get_atom_id', 'reset_tags']
+__all__ = ['Atom', 'bond', 'delete_atom', 'from_smiles', 'get_all_atoms', 'get_atom', 'get_formula', 'get_atom_id', 'get_smiles', 'reset_tags']
 
 class Atom:
     """
@@ -28,9 +49,7 @@ class Atom:
         IdError
         LoneElectronError
     """
-    element_info: Dict[str, List[any]]
     id_map: Dict[int, 'Atom']
-    id_pool: List[int]
     access_tag: bool
     bonds: Optional[List[int]]
     charge: int
@@ -105,6 +124,25 @@ class Atom:
         """
         ...
     @classmethod
+    def from_smiles(cls, smiles: str, top: bool = True, val: Optional[List[any]] = None) -> Union['Atom', Tuple['Atom', int]]:
+        """
+        Get a structure from a SMILES.
+        
+        Args:
+            smiles (str): The SMILES.
+            top (bool): Whether to be the entry point for the recursion. Default to True. (Warning: do not set this
+                       parameter to False. Otherwise, it will lead to some unexpected problems)
+            val (list | None): Variables passed during recursion. Default to None. (Warning: do not set this parameter
+                               to anything else. Otherwise, it will lead to some unexpected problems)
+        
+        Returns:
+            str: An atom in the result structure.
+        
+        Raises:
+            SmilesError
+        """
+        ...
+    @classmethod
     def get_all_atoms(cls) -> List['Atom']:
         """
         Get the list of registered atoms.
@@ -141,6 +179,37 @@ class Atom:
         
         Raises:
             AtomError
+        """
+        ...
+    @classmethod
+    def get_formula(cls, atom: Atom) -> str:
+        """
+        Convert the structure of an atom into formula with Hill System.
+        
+        Args:
+            atom (Atom): The atom to convert.
+        
+        Returns:
+            str: The result formula.
+        
+        Raises:
+            AtomError
+        """
+        ...
+    @classmethod
+    def get_smiles(cls, atom: Atom) -> str:
+        """
+        Convert the structure of an atom into SMILES.
+        
+        Args:
+            atom (Atom): The atom to convert.
+        
+        Returns:
+            str: The result SMILES.
+        
+        Raises:
+            AtomError
+            SmilesError
         """
         ...
     @classmethod
@@ -253,7 +322,7 @@ class Atom:
         Set the charge attribute to a new number.
         
         Args:
-            charge (int): new charge number you want to assign to the charge attribute.
+            charge (int): New charge number you want to assign to the charge attribute.
         
         Raises:
             AtomError
@@ -266,7 +335,7 @@ class Atom:
         Set the element attribute to a new number.
         
         Args:
-            element (int): new element you want to assign to the element attribute.
+            element (int): New element you want to assign to the element attribute.
         
         Raises:
             AtomError
@@ -279,7 +348,7 @@ class Atom:
         Set the lone_electron attribute to a new number.
         
         Args:
-            lone_electron (int): new number of lone electrons you want to assign to the lone_electron attribute.
+            lone_electron (int): New number of lone electrons you want to assign to the lone_electron attribute.
             auto_modify (bool): Whether to automatically adjust the number of lone electrons. Default to False.
         
         Raises:
@@ -289,6 +358,41 @@ class Atom:
         """
         ...
     def survive(self) -> None: ...
+    def to_formula(self, top: bool = True, val: Optional[List[any]] = None) -> str:
+        """
+        Convert the structure of the current atom into formula with Hill System.
+        
+        Args:
+            top (bool): Whether to be the entry point for the recursion. Default to True. (Warning: do not set this
+                       parameter to False. Otherwise, it will lead to some unexpected problems)
+            val (list | None): Variables passed during recursion. Default to None. (Warning: do not set this parameter
+                               to anything else. Otherwise, it will lead to some unexpected problems)
+        
+        Returns:
+            str: The result formula.
+        
+        Raises:
+            AtomError
+        """
+        ...
+    def to_smiles(self, top: bool = True, val: Optional[List[any]] = None) -> str:
+        """
+        Convert the structure of the current atom into SMILES.
+        
+        Args:
+            top (bool): Whether to be the entry point for the recursion. Default to True. (Warning: do not set this
+                       parameter to False. Otherwise, it will lead to some unexpected problems)
+            val (list | None): Variables passed during recursion. Default to None. (Warning: do not set this parameter
+                               to anything else. Otherwise, it will lead to some unexpected problems)
+        
+        Returns:
+            str: The result SMILES.
+        
+        Raises:
+            AtomError
+            SmilesError
+        """
+        ...
 
 class AtomError(Exception):
     atom: int
@@ -319,9 +423,17 @@ class LoneElectronError(Exception):
     message: str
     def __init__(self, message: str, atom: int) -> None: ...
 
+class SmilesError(Exception):
+    atom: Optional[int]
+    message: str
+    def __init__(self, message: str, atom: Optional[int]) -> None: ...
+
 bond: Callable
 delete_atom: Callable
+from_smiles: Callable
 get_all_atoms: Callable
 get_atom: Callable
 get_atom_id: Callable
+get_formula: Callable
+get_smiles: Callable
 reset_tags: Callable
